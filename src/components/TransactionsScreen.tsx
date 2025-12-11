@@ -15,7 +15,7 @@ export default function TransactionsScreen({ transactions, onDelete, onBack }: T
   const [filterCategory, setFilterCategory] = useState<string | null>(null);
   const [showFilters, setShowFilters] = useState(false);
 
-  const categories = ['All', 'Food', 'Travel', 'Rent', 'Shopping', 'Others', 'Income'];
+  const categories = ['All', 'Food', 'Travel', 'Rent', 'Shopping', 'Others', 'Budget'];
 
   // Filter transactions
   const filteredTransactions = transactions.filter(transaction => {
@@ -56,7 +56,7 @@ export default function TransactionsScreen({ transactions, onDelete, onBack }: T
       </div>
 
       {/* Search and Filter */}
-      <div className="px-6 pb-4 space-y-3">
+      <div className="px-6 pb-4 space-y-3 sticky top-20 bg-white z-10 pt-2">
         {/* Search Bar */}
         <div className="relative">
           <div className="absolute left-4 top-1/2 -translate-y-1/2 text-[#9CA3AF]">
@@ -66,32 +66,35 @@ export default function TransactionsScreen({ transactions, onDelete, onBack }: T
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search transactions..."
-            className="w-full pl-12 pr-4 py-3 bg-white rounded-[12px] border-2 border-[#E5E7EB] focus:border-[#2F80ED] focus:outline-none transition-colors"
+            placeholder="Search by note or category..."
+            className="w-full pl-12 pr-4 py-3 bg-gray-50 rounded-[16px] border border-transparent focus:bg-white focus:border-[#1A1A1A] focus:outline-none transition-all font-medium"
           />
         </div>
 
         {/* Filter Toggle */}
         <button
           onClick={() => setShowFilters(!showFilters)}
-          className="flex items-center gap-2 px-4 py-2 bg-white rounded-[12px] border-2 border-[#E5E7EB] hover:border-[#2F80ED] transition-colors"
+          className={`flex items-center gap-2 px-4 py-2 rounded-[12px] border transition-all ${filterCategory
+            ? 'bg-[#1A1A1A] text-white border-[#1A1A1A]'
+            : 'bg-white text-gray-500 border-gray-200 hover:border-gray-300'
+            }`}
         >
-          <Filter size={16} className="text-[#6B7280]" />
-          <span className="text-sm text-[#6B7280]">
-            {filterCategory && filterCategory !== 'All' ? filterCategory : 'Filter by category'}
+          <Filter size={16} />
+          <span className="text-sm font-medium">
+            {filterCategory && filterCategory !== 'All' ? filterCategory : 'Filter'}
           </span>
         </button>
 
         {/* Category Filters */}
         {showFilters && (
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap gap-2 animate-in fade-in slide-in-from-top-2">
             {categories.map((cat) => (
               <button
                 key={cat}
                 onClick={() => setFilterCategory(cat === 'All' ? null : cat)}
-                className={`px-4 py-2 rounded-[12px] text-sm transition-all ${(cat === 'All' && !filterCategory) || filterCategory === cat
-                    ? 'bg-[#2F80ED] text-white'
-                    : 'bg-[#F6F8FF] text-[#6B7280] hover:bg-[#EEF2FF]'
+                className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${(cat === 'All' && !filterCategory) || filterCategory === cat
+                  ? 'bg-[#1A1A1A] text-white shadow-md'
+                  : 'bg-gray-100 text-gray-500 hover:bg-gray-200'
                   }`}
               >
                 {cat}
@@ -104,49 +107,48 @@ export default function TransactionsScreen({ transactions, onDelete, onBack }: T
       {/* Transactions List */}
       <div className="flex-1 px-6 pb-6 overflow-y-auto">
         {filteredTransactions.length === 0 ? (
-          <div className="text-center py-12">
-            <p className="text-[#9CA3AF]">No transactions found</p>
+          <div className="flex flex-col items-center justify-center py-20 text-center opacity-50">
+            <Search size={48} className="text-gray-300 mb-4" />
+            <p className="text-[#1A1A1A] font-medium">No results found</p>
+            <p className="text-sm text-gray-500">Try adjusting your filters</p>
           </div>
         ) : (
-          <div className="space-y-6">
+          <div className="space-y-8">
             {Object.entries(groupedTransactions).map(([date, dayTransactions]) => (
               <div key={date}>
-                <h3 className="text-sm text-[#6B7280] font-medium mb-3">{date}</h3>
-                <div className="space-y-3">
+                <h3 className="text-xs text-gray-400 font-bold uppercase tracking-wider mb-4 sticky top-0 bg-white py-2">{date}</h3>
+                <div className="space-y-4">
                   {dayTransactions.map((transaction) => (
-                    <Card key={transaction.id} className="relative group">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-3 flex-1 min-w-0">
-                          <CategoryChip category={transaction.category} small />
-                          <div className="flex-1 min-w-0">
-                            <p className="text-[#1A1A1A] font-medium truncate">{transaction.note}</p>
-                            <p className="text-xs text-[#9CA3AF]">
-                              {new Date(transaction.date).toLocaleTimeString('en-IN', {
-                                hour: '2-digit',
-                                minute: '2-digit'
-                              })}
-                            </p>
-                          </div>
+                    <div key={transaction.id} className="relative group flex items-center justify-between p-2 hover:bg-gray-50 rounded-xl transition-colors">
+                      <div className="flex items-center gap-4 min-w-0">
+                        <div className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 ${transaction.type === 'expense' ? 'bg-red-50 text-red-500' : 'bg-green-50 text-green-500'
+                          }`}>
+                          <span className="text-lg font-bold">
+                            {transaction.category.charAt(0)}
+                          </span>
                         </div>
-                        <div className="flex items-center gap-3">
-                          <div className={`font-semibold ${transaction.type === 'expense' ? 'text-[#EF4444]' : 'text-[#10B981]'
-                            }`}>
-                            {transaction.type === 'expense' ? '-' : '+'}₹{transaction.amount.toLocaleString()}
-                          </div>
-                          <button
-                            onClick={() => {
-                              if (window.confirm('Delete this transaction?')) {
-                                onDelete(transaction.id);
-                              }
-                            }}
-                            className="opacity-0 group-hover:opacity-100 p-2 hover:bg-red-50 rounded-[8px] transition-all"
-                            aria-label="Delete transaction"
-                          >
-                            <Trash2 size={16} className="text-[#EF4444]" />
-                          </button>
+                        <div className="min-w-0">
+                          <p className="text-[#1A1A1A] font-medium truncate">{transaction.note}</p>
+                          <p className="text-xs text-gray-400 font-medium">{transaction.category}</p>
                         </div>
                       </div>
-                    </Card>
+
+                      <div className="flex items-center gap-4">
+                        <span className={`font-bold ${transaction.type === 'expense' ? 'text-[#1A1A1A]' : 'text-[#10B981]'}`}>
+                          {transaction.type === 'expense' ? '-' : '+'}₹{transaction.amount}
+                        </span>
+                        <button
+                          onClick={() => {
+                            if (window.confirm('Delete this transaction?')) {
+                              onDelete(transaction.id);
+                            }
+                          }}
+                          className="p-2 text-gray-300 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+                        >
+                          <Trash2 size={16} />
+                        </button>
+                      </div>
+                    </div>
                   ))}
                 </div>
               </div>

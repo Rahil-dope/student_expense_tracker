@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { ArrowLeft, IndianRupee, Calendar, FileText, AlertCircle } from 'lucide-react';
+import { useState, useEffect, useRef } from 'react';
+import { ArrowLeft, IndianRupee, Calendar, FileText, AlertCircle, Plus, Wallet } from 'lucide-react';
 import Button from './Button';
 import Input from './Input';
 import CategoryChip from './CategoryChip';
@@ -13,13 +13,21 @@ type AddExpenseScreenProps = {
 
 export default function AddExpenseScreen({ onSave, onBack }: AddExpenseScreenProps) {
   const [amount, setAmount] = useState('');
+  const amountInputRef = useRef<HTMLInputElement>(null);
   const [category, setCategory] = useState('Food');
   const [note, setNote] = useState('');
   const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
-  const [type, setType] = useState<'expense' | 'income'>('expense');
+  const [type, setType] = useState<'expense' | 'budget'>('expense');
   const [errors, setErrors] = useState<{ amount?: string; date?: string }>({});
 
-  const categories = ['Food', 'Travel', 'Rent', 'Shopping', 'Others'];
+  const categories = ['Food', 'Travel', 'Rent', 'Shopping', 'Others', 'Entertainment', 'Health', 'Education'];
+
+  // Smart Feature: Auto-focus amount input on mount
+  useEffect(() => {
+    if (amountInputRef.current) {
+      amountInputRef.current.focus();
+    }
+  }, []);
 
   const validate = (): boolean => {
     const newErrors: { amount?: string; date?: string } = {};
@@ -29,7 +37,7 @@ export default function AddExpenseScreen({ onSave, onBack }: AddExpenseScreenPro
       newErrors.amount = 'Amount is required';
     } else if (parseFloat(amount) <= 0) {
       newErrors.amount = 'Amount must be greater than 0';
-    } else if (parseFloat(amount) > 1000000) {
+    } else if (parseFloat(amount) > 10000000) {
       newErrors.amount = 'Amount seems too large';
     }
 
@@ -57,8 +65,8 @@ export default function AddExpenseScreen({ onSave, onBack }: AddExpenseScreenPro
 
     onSave({
       amount: parseFloat(amount),
-      category: type === 'income' ? 'Income' : category,
-      note: note || `${type === 'income' ? 'Income' : category} transaction`,
+      category: type === 'budget' ? 'Budget' : category,
+      note: note || `${type === 'budget' ? 'Budget Added' : category}`,
       date,
       type
     });
@@ -75,152 +83,151 @@ export default function AddExpenseScreen({ onSave, onBack }: AddExpenseScreenPro
   };
 
   return (
-    <div className="h-full flex flex-col bg-white">
+    <div className="h-full flex flex-col bg-[#F6F8FF]">
       {/* Header */}
-      <div className="px-6 pt-8 pb-6 bg-gradient-to-b from-[#F6F8FF] to-transparent">
+      <div className="px-6 pt-8 pb-6 bg-white shadow-sm z-10 sticky top-0">
         <div className="flex items-center gap-4">
           <button
             onClick={onBack}
-            className="p-3 hover:bg-white rounded-[12px] transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"
-            aria-label="Go back to dashboard"
+            className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+            aria-label="Go back"
           >
             <ArrowLeft size={24} className="text-[#1A1A1A]" />
           </button>
-          <h1 className="text-[#1A1A1A] text-2xl font-semibold">Add Transaction</h1>
+          <h1 className="text-[#1A1A1A] text-xl font-bold">Add New</h1>
         </div>
       </div>
 
       {/* Form */}
-      <div className="flex-1 px-6 space-y-6 overflow-y-auto pb-8">
-        {/* Type Selector */}
-        <Card>
-          <div className="flex gap-3">
-            <button
-              onClick={() => setType('expense')}
-              className={`flex-1 py-3 rounded-[12px] font-medium transition-all ${type === 'expense'
-                  ? 'bg-[#2F80ED] text-white shadow-lg'
-                  : 'bg-[#F6F8FF] text-[#6B7280] hover:bg-[#EEF2FF]'
-                }`}
-            >
-              Expense
-            </button>
-            <button
-              onClick={() => setType('income')}
-              className={`flex-1 py-3 rounded-[12px] font-medium transition-all ${type === 'income'
-                  ? 'bg-[#10B981] text-white shadow-lg'
-                  : 'bg-[#F6F8FF] text-[#6B7280] hover:bg-[#EEF2FF]'
-                }`}
-            >
-              Income
-            </button>
-          </div>
-        </Card>
+      <div className="flex-1 px-4 py-6 space-y-6 overflow-y-auto pb-24">
 
-        {/* Amount Input */}
-        <Card>
-          <label className="block mb-3 text-[#6B7280] font-medium">
-            Amount <span className="text-red-500">*</span>
+        {/* Type Toggle - Smart Redesign */}
+        <div className="bg-white p-1 rounded-2xl flex shadow-sm border border-gray-100">
+          <button
+            onClick={() => setType('expense')}
+            className={`flex-1 py-3 px-4 rounded-xl text-sm font-semibold transition-all flex items-center justify-center gap-2 ${type === 'expense'
+                ? 'bg-[#FF6B6B] text-white shadow-md'
+                : 'text-gray-500 hover:bg-gray-50'
+              }`}
+          >
+            <div className="w-2 h-2 rounded-full bg-white opacity-50" />
+            Expense
+          </button>
+          <button
+            onClick={() => {
+              setType('budget');
+              // Smart interaction: Reset category when switching to budget
+              setCategory('Budget');
+            }}
+            className={`flex-1 py-3 px-4 rounded-xl text-sm font-semibold transition-all flex items-center justify-center gap-2 ${type === 'budget'
+                ? 'bg-[#10B981] text-white shadow-md'
+                : 'text-gray-500 hover:bg-gray-50'
+              }`}
+          >
+            <Wallet size={16} />
+            Add Budget
+          </button>
+        </div>
+
+        {/* Amount Input - Redesigned for focus */}
+        <div className="bg-white rounded-[24px] p-6 shadow-sm border border-gray-100 text-center">
+          <label className="block mb-2 text-gray-500 text-sm font-medium uppercase tracking-wide">
+            Enter Amount
           </label>
-          <div className="relative">
-            <div className="absolute left-4 top-1/2 -translate-y-1/2 text-[#2F80ED]">
-              <IndianRupee size={28} />
-            </div>
+          <div className="relative flex items-center justify-center">
+            <span className={`text-4xl font-bold mr-1 ${type === 'expense' ? 'text-[#FF6B6B]' : 'text-[#10B981]'}`}>₹</span>
             <input
+              ref={amountInputRef}
               type="number"
               value={amount}
               onChange={(e) => {
                 setAmount(e.target.value);
                 if (errors.amount) setErrors({ ...errors, amount: undefined });
               }}
-              placeholder="0.00"
-              className={`w-full pl-16 pr-4 py-4 text-3xl font-semibold bg-[#F6F8FF] rounded-[12px] border-2 transition-colors ${errors.amount
-                  ? 'border-red-500 focus:border-red-500'
-                  : 'border-transparent focus:border-[#2F80ED]'
-                } focus:outline-none`}
+              placeholder="0"
+              className={`w-full max-w-[200px] text-5xl font-bold bg-transparent text-center focus:outline-none placeholder-gray-200 ${type === 'expense' ? 'text-[#1A1A1A]' : 'text-[#10B981]'
+                }`}
               min="0"
-              step="0.01"
+              inputMode="decimal"
             />
           </div>
           {errors.amount && (
-            <div className="flex items-center gap-2 mt-2 text-red-500 text-sm">
-              <AlertCircle size={16} />
-              <span>{errors.amount}</span>
-            </div>
+            <p className="text-red-500 text-sm mt-2 font-medium">{errors.amount}</p>
           )}
-        </Card>
+        </div>
 
-        {/* Category Selection */}
+        {/* Category Selection - Only for Expenses */}
         {type === 'expense' && (
-          <Card>
-            <label className="block mb-3 text-[#6B7280] font-medium">
-              Category <span className="text-red-500">*</span>
-            </label>
-            <div className="flex flex-wrap gap-2">
+          <div className="space-y-3">
+            <label className="text-[#1A1A1A] font-semibold ml-1">Category</label>
+            <div className="flex flex-wrap gap-3">
               {categories.map((cat) => (
-                <CategoryChip
+                <button
                   key={cat}
-                  category={cat}
-                  active={category === cat}
                   onClick={() => setCategory(cat)}
-                />
+                  className={`px-4 py-2 rounded-xl text-sm font-medium transition-all border ${category === cat
+                      ? 'bg-[#1A1A1A] text-white border-[#1A1A1A] shadow-md transform scale-105'
+                      : 'bg-white text-gray-600 border-gray-200 hover:border-gray-300'
+                    }`}
+                >
+                  {cat}
+                </button>
               ))}
             </div>
-          </Card>
+          </div>
         )}
 
-        {/* Date Input */}
-        <Card>
-          <label className="block mb-3 text-[#6B7280] font-medium">
-            Date <span className="text-red-500">*</span>
-          </label>
-          <div className="relative">
-            <div className="absolute left-4 top-1/2 -translate-y-1/2 text-[#6B7280]">
+        {/* Additional Details */}
+        <div className="bg-white rounded-[20px] p-4 shadow-sm border border-gray-100 space-y-4">
+          {/* Date */}
+          <div className="flex items-center gap-3 p-2">
+            <div className="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center text-blue-500">
               <Calendar size={20} />
             </div>
-            <input
-              type="date"
-              value={date}
-              onChange={(e) => {
-                setDate(e.target.value);
-                if (errors.date) setErrors({ ...errors, date: undefined });
-              }}
-              max={new Date().toISOString().split('T')[0]}
-              className={`w-full pl-12 pr-4 py-3 bg-[#F6F8FF] rounded-[12px] border-2 transition-colors ${errors.date
-                  ? 'border-red-500 focus:border-red-500'
-                  : 'border-transparent focus:border-[#2F80ED]'
-                } focus:outline-none`}
-            />
-          </div>
-          {errors.date && (
-            <div className="flex items-center gap-2 mt-2 text-red-500 text-sm">
-              <AlertCircle size={16} />
-              <span>{errors.date}</span>
+            <div className="flex-1">
+              <label className="text-xs text-gray-500 font-medium block">Date</label>
+              <input
+                type="date"
+                value={date}
+                onChange={(e) => setDate(e.target.value)}
+                max={new Date().toISOString().split('T')[0]}
+                className="w-full bg-transparent font-medium text-[#1A1A1A] focus:outline-none"
+              />
             </div>
-          )}
-        </Card>
+          </div>
 
-        {/* Note Input */}
-        <Card>
-          <Input
-            label="Note (Optional)"
-            value={note}
-            onChange={setNote}
-            placeholder="Add a note..."
-            icon={<FileText size={20} />}
-            multiline
-          />
-        </Card>
+          <div className="h-[1px] bg-gray-100 mx-2" />
+
+          {/* Note */}
+          <div className="flex items-center gap-3 p-2">
+            <div className="w-10 h-10 rounded-full bg-purple-50 flex items-center justify-center text-purple-500">
+              <FileText size={20} />
+            </div>
+            <div className="flex-1">
+              <label className="text-xs text-gray-500 font-medium block">Note</label>
+              <input
+                type="text"
+                value={note}
+                onChange={(e) => setNote(e.target.value)}
+                placeholder="Add a remark..."
+                className="w-full bg-transparent font-medium text-[#1A1A1A] placeholder-gray-300 focus:outline-none"
+              />
+            </div>
+          </div>
+        </div>
       </div>
 
-      {/* Save Button */}
-      <div className="px-6 pb-8 pt-4 bg-gradient-to-t from-white to-transparent">
+      {/* Save Button - Floating Style for Mobile */}
+      <div className="fixed bottom-6 left-0 right-0 px-6 max-w-[420px] mx-auto">
         <Button
           variant="primary"
           size="large"
           fullWidth
           onClick={handleSave}
+          disabled={!amount}
+          className="shadow-xl shadow-blue-500/20"
         >
-          Save Transaction
+          {type === 'expense' ? 'Add Expense' : 'Add to Budget'}
         </Button>
       </div>
     </div>

@@ -5,6 +5,7 @@ const STORAGE_KEYS = {
     BUDGET: 'expense_tracker_budget',
     SETTINGS: 'expense_tracker_settings',
     CATEGORIES: 'expense_tracker_categories',
+    HAS_ONBOARDED: 'expense_tracker_has_onboarded',
 } as const;
 
 export type AppSettings = {
@@ -57,13 +58,13 @@ export const saveBudget = (budget: number): void => {
 export const loadBudget = (): number => {
     try {
         const data = localStorage.getItem(STORAGE_KEYS.BUDGET);
-        if (!data) return 10000; // Default budget
+        if (!data) return 0; // Default budget is now 0
 
         const parsed = parseFloat(data);
-        return isNaN(parsed) ? 10000 : parsed;
+        return isNaN(parsed) ? 0 : parsed;
     } catch (error) {
         console.error('Failed to load budget:', error);
-        return 10000;
+        return 0;
     }
 };
 
@@ -107,7 +108,7 @@ export const DEFAULT_CATEGORIES: Category[] = [
     { id: 'education', name: 'Education', icon: '📚', color: '#6C5CE7', isDefault: true },
     { id: 'health', name: 'Health', icon: '⚕️', color: '#74B9FF', isDefault: true },
     { id: 'bills', name: 'Bills', icon: '💡', color: '#FD79A8', isDefault: true },
-    { id: 'income', name: 'Income', icon: '💰', color: '#00B894', isDefault: true },
+    { id: 'budget', name: 'Budget', icon: '💰', color: '#00B894', isDefault: true },
     { id: 'other', name: 'Other', icon: '📌', color: '#FDCB6E', isDefault: true },
 ];
 
@@ -164,6 +165,25 @@ export const importAllData = (data: any): boolean => {
         return true;
     } catch (error) {
         console.error('Failed to import data:', error);
+        return false;
+    }
+};
+
+// Onboarding Persistence
+export const saveHasOnboarded = (hasOnboarded: boolean): void => {
+    try {
+        localStorage.setItem(STORAGE_KEYS.HAS_ONBOARDED, JSON.stringify(hasOnboarded));
+    } catch (error) {
+        console.error('Failed to save onboarding status:', error);
+    }
+};
+
+export const loadHasOnboarded = (): boolean => {
+    try {
+        const data = localStorage.getItem(STORAGE_KEYS.HAS_ONBOARDED);
+        return data ? JSON.parse(data) : false;
+    } catch (error) {
+        console.error('Failed to load onboarding status:', error);
         return false;
     }
 };

@@ -13,6 +13,8 @@ import {
   saveBudget,
   loadSettings,
   saveSettings,
+  loadHasOnboarded,
+  saveHasOnboarded,
   AppSettings,
 } from './utils/storage';
 
@@ -22,7 +24,7 @@ export type Transaction = {
   category: string;
   note: string;
   date: string;
-  type: 'expense' | 'income';
+  type: 'expense' | 'budget';
 };
 
 export type Screen =
@@ -35,58 +37,13 @@ export type Screen =
   | 'settings';
 
 export default function App() {
-  const [currentScreen, setCurrentScreen] = useState<Screen>('onboarding');
+  const [currentScreen, setCurrentScreen] = useState<Screen>(() => {
+    const hasOnboarded = loadHasOnboarded();
+    return hasOnboarded ? 'dashboard' : 'onboarding';
+  });
 
   // Load data from localStorage on mount
-  const [transactions, setTransactions] = useState<Transaction[]>(() => {
-    const loaded = loadTransactions();
-    // If no saved data, use default sample data
-    if (loaded.length === 0) {
-      return [
-        {
-          id: '1',
-          amount: 450,
-          category: 'Food',
-          note: 'Lunch at canteen',
-          date: '2025-12-10',
-          type: 'expense'
-        },
-        {
-          id: '2',
-          amount: 120,
-          category: 'Travel',
-          note: 'Bus fare',
-          date: '2025-12-10',
-          type: 'expense'
-        },
-        {
-          id: '3',
-          amount: 5000,
-          category: 'Income',
-          note: 'Monthly allowance',
-          date: '2025-12-01',
-          type: 'income'
-        },
-        {
-          id: '4',
-          amount: 850,
-          category: 'Shopping',
-          note: 'Books and stationery',
-          date: '2025-12-09',
-          type: 'expense'
-        },
-        {
-          id: '5',
-          amount: 300,
-          category: 'Food',
-          note: 'Coffee with friends',
-          date: '2025-12-08',
-          type: 'expense'
-        }
-      ];
-    }
-    return loaded;
-  });
+  const [transactions, setTransactions] = useState<Transaction[]>(() => loadTransactions());
 
   const [monthlyBudget, setMonthlyBudget] = useState(() => loadBudget());
   const [settings, setSettings] = useState<AppSettings>(() => loadSettings());
@@ -111,10 +68,23 @@ export default function App() {
       ...transaction,
       id: Date.now().toString()
     };
+
+    // Automatically update budget if a budget transaction is added
+    if (transaction.type === 'budget') {
+      setMonthlyBudget(prev => prev + transaction.amount);
+    }
+
     setTransactions([newTransaction, ...transactions]);
   };
 
   const deleteTransaction = (id: string) => {
+    const transactionToDelete = transactions.find(t => t.id === id);
+    if (transactionToDelete && transactionToDelete.type === 'budget') {
+      // Optional: Deduct from budget if budget entry is deleted? 
+      // For now let's keep it simple, user manages budget in Budget screen mostly.
+      // But to be consistent with "Income -> Budget", maybe we should decrement?
+      setMonthlyBudget(prev => Math.max(0, prev - transactionToDelete.amount));
+    }
     setTransactions(transactions.filter(t => t.id !== id));
   };
 
@@ -126,11 +96,16 @@ export default function App() {
     setCurrentScreen(screen);
   };
 
+  const handleOnboardingComplete = () => {
+    saveHasOnboarded(true);
+    navigateTo('dashboard');
+  };
+
   return (
     <div className="min-h-screen bg-[#F6F8FF] flex items-center justify-center p-4">
       <div className="w-full max-w-[420px] min-h-[800px] bg-white rounded-[32px] shadow-2xl overflow-hidden relative">
         {currentScreen === 'onboarding' && (
-          <OnboardingScreen onGetStarted={() => navigateTo('dashboard')} />
+          <OnboardingScreen onGetStarted={handleOnboardingComplete} />
         )}
         {currentScreen === 'dashboard' && (
           <DashboardScreen

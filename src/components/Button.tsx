@@ -7,6 +7,8 @@ type ButtonProps = {
   onClick?: () => void;
   fullWidth?: boolean;
   icon?: React.ReactNode;
+  disabled?: boolean;
+  className?: string;
 };
 
 export default function Button({
@@ -15,28 +17,32 @@ export default function Button({
   size = 'medium',
   onClick,
   fullWidth = false,
-  icon
+  icon,
+  disabled = false,
+  className = ''
 }: ButtonProps) {
-  const baseClasses = 'rounded-[12px] transition-all duration-200 flex items-center justify-center gap-2';
-  
+  const baseClasses = 'rounded-[12px] transition-all duration-200 flex items-center justify-center gap-2 font-medium';
+
   const variantClasses = {
-    primary: 'bg-[#2F80ED] text-white shadow-lg shadow-blue-200 hover:bg-[#2567C7] active:scale-[0.98]',
-    secondary: 'bg-white text-[#2F80ED] border-2 border-[#2F80ED] hover:bg-[#F6F8FF] active:scale-[0.98]',
-    ghost: 'bg-transparent text-[#6B7280] hover:bg-gray-100 active:scale-[0.98]'
+    primary: 'bg-[#1A1A1A] text-white shadow-lg hover:bg-black active:scale-[0.98] disabled:bg-gray-300 disabled:shadow-none',
+    secondary: 'bg-white text-[#1A1A1A] border border-gray-200 hover:bg-[#F6F8FF] hover:border-[#1A1A1A] active:scale-[0.98] disabled:bg-gray-50 disabled:text-gray-400 disabled:border-gray-100',
+    ghost: 'bg-transparent text-[#6B7280] hover:bg-gray-100 active:scale-[0.98] disabled:text-gray-300'
   };
 
   const sizeClasses = {
     small: 'px-4 py-2 text-sm',
-    medium: 'px-6 py-3',
-    large: 'px-8 py-4'
+    medium: 'px-6 py-3 text-base',
+    large: 'px-8 py-4 text-lg'
   };
 
   const widthClass = fullWidth ? 'w-full' : '';
+  const disabledClass = disabled ? 'cursor-not-allowed pointer-events-none' : '';
 
   return (
     <button
       onClick={onClick}
-      className={`${baseClasses} ${variantClasses[variant]} ${sizeClasses[size]} ${widthClass}`}
+      disabled={disabled}
+      className={`${baseClasses} ${variantClasses[variant]} ${sizeClasses[size]} ${widthClass} ${disabledClass} ${className}`}
     >
       {icon && <span>{icon}</span>}
       {children}
