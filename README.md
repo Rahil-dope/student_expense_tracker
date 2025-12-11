@@ -67,19 +67,18 @@ npm run build
 
 The optimized production build will be in the `build` folder.
 
-## ☁️ Deployment (Netlify)
+## 🚀 Deployment (Vercel)
 
-This project is fully compatible with Netlify!
+This project is optimized for deployment on [Vercel](https://vercel.com).
 
-1. **Drag & Drop:**
-   - Run `npm run build`
-   - Drag the `build` folder to [Netlify Drop](https://app.netlify.com/drop)
+1.  Push your code to a GitHub repository.
+2.  Log in to Vercel and click **"Add New..."** -> **"Project"**.
+3.  Import your GitHub repository.
+4.  Vercel will automatically detect **Vite**.
+5.  Ensure the **Output Directory** is set to `dist` (default).
+6.  Click **Deploy**.
 
-2. **Git Integration (Recommended):**
-   - Push code to GitHub
-   - Connect repository in Netlify
-   - **Build Command:** `npm run build`
-   - **Publish Directory:** `build` (Important: Default is often 'dist', change this to 'build')
+The `vercel.json` file ensures that routing works correctly for this Single Page Application.
 
 ## 📖 Usage Guide
 
