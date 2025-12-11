@@ -106,8 +106,8 @@ export default function AddExpenseScreen({ onSave, onBack }: AddExpenseScreenPro
           <button
             onClick={() => setType('expense')}
             className={`flex-1 py-3 px-4 rounded-xl text-sm font-semibold transition-all flex items-center justify-center gap-2 ${type === 'expense'
-                ? 'bg-[#FF6B6B] text-white shadow-md'
-                : 'text-gray-500 hover:bg-gray-50'
+              ? 'bg-[#FF6B6B] text-white shadow-md'
+              : 'text-gray-500 hover:bg-gray-50'
               }`}
           >
             <div className="w-2 h-2 rounded-full bg-white opacity-50" />
@@ -120,8 +120,8 @@ export default function AddExpenseScreen({ onSave, onBack }: AddExpenseScreenPro
               setCategory('Budget');
             }}
             className={`flex-1 py-3 px-4 rounded-xl text-sm font-semibold transition-all flex items-center justify-center gap-2 ${type === 'budget'
-                ? 'bg-[#10B981] text-white shadow-md'
-                : 'text-gray-500 hover:bg-gray-50'
+              ? 'bg-[#10B981] text-white shadow-md'
+              : 'text-gray-500 hover:bg-gray-50'
               }`}
           >
             <Wallet size={16} />
@@ -145,7 +145,7 @@ export default function AddExpenseScreen({ onSave, onBack }: AddExpenseScreenPro
                 if (errors.amount) setErrors({ ...errors, amount: undefined });
               }}
               placeholder="0"
-              className={`w-full max-w-[200px] text-5xl font-bold bg-transparent text-center focus:outline-none placeholder-gray-200 ${type === 'expense' ? 'text-[#1A1A1A]' : 'text-[#10B981]'
+              className={`w-full max-w-[200px] text-5xl font-bold bg-transparent text-center focus:outline-none placeholder-gray-300 ${type === 'expense' ? 'text-[#1A1A1A]' : 'text-[#10B981]'
                 }`}
               min="0"
               inputMode="decimal"
@@ -166,8 +166,8 @@ export default function AddExpenseScreen({ onSave, onBack }: AddExpenseScreenPro
                   key={cat}
                   onClick={() => setCategory(cat)}
                   className={`px-4 py-2 rounded-xl text-sm font-medium transition-all border ${category === cat
-                      ? 'bg-[#1A1A1A] text-white border-[#1A1A1A] shadow-md transform scale-105'
-                      : 'bg-white text-gray-600 border-gray-200 hover:border-gray-300'
+                    ? 'bg-[#1A1A1A] text-white border-[#1A1A1A] shadow-md transform scale-105'
+                    : 'bg-white text-gray-600 border-gray-200 hover:border-gray-300'
                     }`}
                 >
                   {cat}
@@ -210,7 +210,7 @@ export default function AddExpenseScreen({ onSave, onBack }: AddExpenseScreenPro
                 value={note}
                 onChange={(e) => setNote(e.target.value)}
                 placeholder="Add a remark..."
-                className="w-full bg-transparent font-medium text-[#1A1A1A] placeholder-gray-300 focus:outline-none"
+                className="w-full bg-transparent font-medium text-[#1A1A1A] placeholder-gray-400 focus:outline-none"
               />
             </div>
           </div>
@@ -218,7 +218,7 @@ export default function AddExpenseScreen({ onSave, onBack }: AddExpenseScreenPro
       </div>
 
       {/* Save Button - Floating Style for Mobile */}
-      <div className="fixed bottom-6 left-0 right-0 px-6 max-w-[420px] mx-auto">
+      <div className="absolute bottom-6 left-0 right-0 px-6 max-w-[420px] mx-auto z-20">
         <Button
           variant="primary"
           size="large"

@@ -145,7 +145,7 @@ export default function DashboardScreen({ transactions, monthlyBudget, onNavigat
       </div>
 
       {/* Floating Action Button */}
-      <div className="fixed bottom-6 right-6">
+      <div className="absolute bottom-6 right-6">
         <button
           onClick={() => onNavigate('add-expense')}
           className="w-16 h-16 bg-[#1A1A1A] rounded-full shadow-lg shadow-gray-400/50 flex items-center justify-center hover:scale-105 active:scale-95 transition-all text-white"
