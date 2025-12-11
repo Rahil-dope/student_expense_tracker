@@ -65,7 +65,21 @@ A modern, feature-rich expense tracking application built specifically for stude
 npm run build
 ```
 
-The optimized production build will be in the `dist` folder.
+The optimized production build will be in the `build` folder.
+
+## ☁️ Deployment (Netlify)
+
+This project is fully compatible with Netlify!
+
+1. **Drag & Drop:**
+   - Run `npm run build`
+   - Drag the `build` folder to [Netlify Drop](https://app.netlify.com/drop)
+
+2. **Git Integration (Recommended):**
+   - Push code to GitHub
+   - Connect repository in Netlify
+   - **Build Command:** `npm run build`
+   - **Publish Directory:** `build` (Important: Default is often 'dist', change this to 'build')
 
 ## 📖 Usage Guide
 
